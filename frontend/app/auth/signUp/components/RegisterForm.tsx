@@ -1,24 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { useForm, FormProvider, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { 
-  Eye, EyeOff, Upload, ShieldCheck, Zap, CheckCircle, Lock, 
+  Eye, EyeOff, Upload, ShieldCheck, Lock, 
   MapPin, Building2, Globe, Phone, Mail, User, Store, 
-  CreditCard, AlertCircle, CheckCircle2, Home
+  CreditCard, AlertCircle, CheckCircle2, Home, 
+  Briefcase, Link2, Smartphone, UserCheck, MessageCircle, 
+  Zap, TrendingUp, Award
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { registerSchema, RegisterFormValues } from '../schema/registerSchema';
 import { useGooglePlacesAutocomplete } from '../hooks/useGooglePlacesAutocomplete';
 import useGoogleMapLoad from '@/hooks/useGoogleMapLoad';
-// import { useModal } from '@/hooks/useModal';
-// import RegisterSuccess from '@/components/RegisterSuccess';
 
-// ---------- Enhanced Reusable Input Component ----------
+// ---------- Reusable Input Component ----------
 function FormInput({
   label,
   name,
@@ -55,8 +55,8 @@ function FormInput({
       )}
       <div className="relative group">
         {Icon && (
-          <div className="absolute left-3 inset-y-0 flex items-center pointer-events-none">
-            <Icon className={`w-5 h-5 transition-colors ${error ? 'text-red-400' : 'text-gray-400 group-focus-within:text-indigo-500'}`} />
+          <div className="absolute left-3 inset-y-0 flex items-center pointer-events-none z-10">
+            <Icon className={`w-5 h-5 transition-colors ${error ? 'text-red-400' : 'text-gray-400 group-focus-within:text-blue-500'}`} />
           </div>
         )}
         <input
@@ -65,11 +65,12 @@ function FormInput({
           placeholder={placeholder}
           readOnly={readOnly}
           className={`w-full ${Icon ? 'pl-10' : 'pl-4'} pr-4 py-2.5 rounded-lg border transition-all duration-200
-            ${readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white hover:border-gray-300'}
+            ${readOnly ? 'bg-gray-100 cursor-not-allowed text-gray-600' : 'bg-white hover:border-gray-300'}
             ${error 
               ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-              : 'border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
+              : 'border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
             } focus:outline-none shadow-sm hover:shadow-md transition-shadow`}
+          style={{ color: readOnly ? '#4B5563' : '#111827' }}
         />
       </div>
       {helperText && !error && <p className="text-gray-400 text-xs">{helperText}</p>}
@@ -97,8 +98,8 @@ function AddressSection({ isGoogleMapsLoaded }: { isGoogleMapsLoaded: boolean })
 
   return (
     <motion.div 
-      className="space-y-4 p-4 bg-gradient-to-br from-blue-50/30 to-indigo-50/30 rounded-xl border border-blue-100"
-      initial={{ opacity: 0, scale: 0.95 }}
+      className="space-y-4 p-5 bg-gradient-to-br from-blue-50/30 to-indigo-50/30 rounded-xl border border-blue-100"
+      initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}
     >
@@ -125,11 +126,11 @@ function AddressSection({ isGoogleMapsLoaded }: { isGoogleMapsLoaded: boolean })
             placeholder="Start typing your business address..."
             onFocus={() => setIsAddressFocused(true)}
             onBlur={() => setIsAddressFocused(false)}
-            className={`w-full pl-10 pr-4 py-3 rounded-lg border transition-all
+            className={`w-full pl-10 pr-4 py-3 rounded-lg border transition-all bg-white
               ${errors.companyAddress 
                 ? 'border-red-300 focus:ring-red-500' 
-                : 'border-gray-200 focus:ring-2 focus:ring-indigo-500'
-              } focus:outline-none bg-white shadow-sm`}
+                : 'border-gray-200 focus:ring-2 focus:ring-blue-500'
+              } focus:outline-none shadow-sm placeholder-gray-400`}
             onChange={(e) => setValue('companyAddress', e.target.value)}
           />
         </div>
@@ -168,9 +169,9 @@ function AddressSection({ isGoogleMapsLoaded }: { isGoogleMapsLoaded: boolean })
         <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
-            {...setValue('showDetailedAddress', !showDetailedAddress)}
+            checked={showDetailedAddress}
             onChange={(e) => setValue('showDetailedAddress', e.target.checked)}
-            className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
           <span className="text-sm text-gray-600">Add detailed address information</span>
         </label>
@@ -183,60 +184,57 @@ function AddressSection({ isGoogleMapsLoaded }: { isGoogleMapsLoaded: boolean })
       </div>
 
       {/* Detailed Address Fields (Conditional) */}
-      <AnimatePresence>
-        {showDetailedAddress && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-3 overflow-hidden"
-          >
-            <div className="border-t border-gray-200 pt-3">
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Additional Location Details</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <FormInput 
-                  label="Suite/Unit/Apt" 
-                  name="suiteNumber" 
-                  placeholder="Suite 123, Floor 4"
-                  icon={Building2}
-                />
-                <FormInput 
-                  label="Landmark" 
-                  name="landmark" 
-                  placeholder="Near City Mall"
-                  icon={MapPin}
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-                <FormInput 
-                  label="Latitude" 
-                  name="latitude" 
-                  readOnly 
-                  icon={Globe}
-                />
-                <FormInput 
-                  label="Longitude" 
-                  name="longitude" 
-                  readOnly 
-                  icon={Globe}
-                />
-              </div>
+      {showDetailedAddress && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.3 }}
+          className="space-y-3 overflow-hidden"
+        >
+          <div className="border-t border-gray-200 pt-3">
+            <h4 className="text-sm font-medium text-gray-700 mb-3">Additional Location Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <FormInput 
+                label="Suite/Unit/Apt" 
+                name="suiteNumber" 
+                placeholder="Suite 123, Floor 4"
+                icon={Building2}
+              />
+              <FormInput 
+                label="Landmark" 
+                name="landmark" 
+                placeholder="Near City Mall"
+                icon={MapPin}
+              />
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+              <FormInput 
+                label="Latitude" 
+                name="latitude" 
+                readOnly 
+                icon={Globe}
+              />
+              <FormInput 
+                label="Longitude" 
+                name="longitude" 
+                readOnly 
+                icon={Globe}
+              />
+            </div>
+          </div>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
 
 // ---------- Main Component ----------
 export default function RegisterForm() {
-//   const { openModal } = useModal();
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isGoogleMapsLoaded = useGoogleMapLoad();
 
   const methods = useForm<RegisterFormValues>({
@@ -264,42 +262,11 @@ export default function RegisterForm() {
     },
   });
 
-  const { setValue, handleSubmit, formState: { isSubmitting, errors }, watch } = methods;
-  const formValues = watch();
-
-  const steps = [
-    { title: "Business Info", icon: Store, fields: ['companyName', 'companyWebsite', 'logo'] },
-    { title: "Contact Details", icon: User, fields: ['firstName', 'middleName', 'lastName', 'emailId', 'mobileNumber', 'phoneNumber'] },
-    { title: "Address", icon: MapPin, fields: ['companyAddress', 'country', 'zipCode'] },
-    { title: "Security", icon: Lock, fields: ['password', 'confirmPassword', 'termsSelected'] }
-  ];
-
-  const validateStep = (step: number): boolean => {
-    const stepFields = steps[step].fields;
-    let isValid = true;
-    stepFields.forEach(field => {
-      if (errors[field as keyof RegisterFormValues]) isValid = false;
-      if (!formValues[field as keyof RegisterFormValues] && 
-          ['companyName', 'firstName', 'emailId', 'mobileNumber', 'companyAddress', 'password', 'confirmPassword'].includes(field)) {
-        isValid = false;
-      }
-    });
-    return isValid;
-  };
-
-  const nextStep = () => {
-    if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
-    } else {
-      toast.error(`Please complete all required fields in ${steps[currentStep].title}`);
-    }
-  };
-
-  const prevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 0));
-  };
+  const { setValue, handleSubmit, formState: { errors } } = methods;
 
   const onSubmit = async (data: RegisterFormValues) => {
+    setIsSubmitting(true);
+    
     // Build FormData
     const formData = new FormData();
     for (const [key, value] of Object.entries(data)) {
@@ -317,12 +284,19 @@ export default function RegisterForm() {
       const result = await res.json();
       if (!res.ok) throw new Error(result.message || 'Registration failed');
 
-    //   openModal(<RegisterSuccess />);
       methods.reset();
-      toast.success('Registration successful!');
+      setLogoPreview(null);
+      toast.success('Registration successful! Please check your email to verify your account.');
+      
+      // Optional: Redirect after 2 seconds
+      setTimeout(() => {
+        redirect('/auth/signIn');
+      }, 2000);
     } catch (error: any) {
       console.error("Registration error:", error);
       toast.error(error.message || "Registration failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -333,6 +307,10 @@ export default function RegisterForm() {
         toast.error('Logo must be less than 2MB');
         return;
       }
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please upload an image file');
+        return;
+      }
       setLogoPreview(URL.createObjectURL(file));
       setValue('logo', file as any);
     }
@@ -340,9 +318,9 @@ export default function RegisterForm() {
 
   if (!isGoogleMapsLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading maps integration...</p>
         </div>
       </div>
@@ -350,7 +328,7 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-slate-100 to-gray-100">
       <motion.div 
         className="max-w-6xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden"
         initial={{ opacity: 0, y: 20 }}
@@ -358,289 +336,260 @@ export default function RegisterForm() {
         transition={{ duration: 0.5 }}
       >
         <div className="flex flex-col lg:flex-row">
-          {/* Left decorative panel */}
-          <div className="hidden lg:flex flex-col justify-between lg:w-2/5 p-8 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white">
+          {/* Left decorative panel - Professional & Clean */}
+          <div className="hidden lg:flex flex-col justify-between lg:w-2/5 p-8 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
             <div>
-              <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg mb-8">
-                <ShieldCheck className="w-8 h-8 text-white" />
+              <div className="flex items-center gap-3 mb-12">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
+                  <MessageCircle className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold tracking-tight">Messaging SaaS</h1>
+                  <p className="text-white/60 text-sm">Enterprise Communication</p>
+                </div>
               </div>
-              <h1 className="text-3xl font-bold mb-2">Humber Mobility</h1>
-              <p className="text-white/80 text-lg mb-6">Service & Repair System</p>
-              <p className="text-white/70 text-sm leading-relaxed mb-12">
-                Join the complete workflow management for mobility scooter services.
-              </p>
+              
+              <div className="space-y-6 mb-8">
+                <h2 className="text-3xl font-bold leading-tight">
+                  Modern messaging for 
+                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+                    modern business
+                  </span>
+                </h2>
+                <p className="text-white/70 text-sm leading-relaxed">
+                  Join thousands of businesses using our platform to streamline communication, 
+                  automate workflows, and deliver exceptional customer experiences.
+                </p>
+              </div>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[
-                { icon: ShieldCheck, text: 'Secure role-based access control', color: 'bg-purple-500/20' },
-                { icon: Zap, text: 'Real-time service tracking', color: 'bg-blue-500/20' },
-                { icon: CheckCircle, text: 'Comprehensive reporting', color: 'bg-green-500/20' },
+                { icon: ShieldCheck, text: 'Enterprise-grade security', color: 'from-blue-500/20 to-indigo-500/20' },
+                { icon: Zap, text: 'Lightning-fast delivery', color: 'from-blue-500/20 to-indigo-500/20' },
+                { icon: TrendingUp, text: 'Advanced analytics', color: 'from-blue-500/20 to-indigo-500/20' },
+                { icon: Award, text: '99.9% uptime guarantee', color: 'from-blue-500/20 to-indigo-500/20' },
               ].map((item, idx) => (
                 <motion.div 
                   key={idx}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.1 }}
-                  className={`flex items-center gap-3 rounded-xl ${item.color} p-3 backdrop-blur-sm`}
+                  className="flex items-center gap-3 rounded-xl bg-white/5 backdrop-blur-sm p-3 border border-white/10"
                 >
-                  <div className="p-2 bg-white/20 rounded-lg">
-                    <item.icon size={18} />
+                  <div className="p-1.5 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-lg">
+                    <item.icon size={16} className="text-blue-400" />
                   </div>
                   <p className="text-sm text-white/90">{item.text}</p>
                 </motion.div>
               ))}
             </div>
 
-            <div className="mt-8 pt-6 border-t border-white/20">
-              <p className="text-white/60 text-xs text-center">
-                Secure & Encrypted • GDPR Compliant • 24/7 Support
-              </p>
+            <div className="mt-8 pt-6 border-t border-white/10">
+              <div className="flex items-center justify-between text-xs text-white/50">
+                <span>Secure & Encrypted</span>
+                <span>•</span>
+                <span>GDPR Compliant</span>
+                <span>•</span>
+                <span>24/7 Support</span>
+              </div>
             </div>
           </div>
 
           {/* Right side – Registration Form */}
           <div className="relative lg:w-3/5 p-6 md:p-8 bg-white">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600" />
-
-            {/* Progress Steps */}
-            <div className="mb-8">
-              <div className="flex justify-between mb-4">
-                {steps.map((step, idx) => (
-                  <div key={idx} className="flex-1 text-center">
-                    <div className={`
-                      w-10 h-10 mx-auto rounded-full flex items-center justify-center transition-all duration-300
-                      ${idx <= currentStep 
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' 
-                        : 'bg-gray-200 text-gray-500'}
-                    `}>
-                      {idx < currentStep ? <CheckCircle2 className="w-5 h-5" /> : <step.icon className="w-5 h-5" />}
-                    </div>
-                    <p className={`text-xs mt-2 font-medium ${idx <= currentStep ? 'text-indigo-600' : 'text-gray-500'}`}>
-                      {step.title}
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <div className="relative h-1 bg-gray-200 rounded-full">
-                <div 
-                  className="absolute h-full bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full transition-all duration-500"
-                  style={{ width: `${((currentStep) / (steps.length - 1)) * 100}%` }}
-                />
-              </div>
-            </div>
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
 
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Create your showroom</h2>
-              <p className="text-gray-600 text-sm mt-1">Fill in the details to get started</p>
+              <h2 className="text-2xl font-bold text-gray-900">Create your account</h2>
+              <p className="text-gray-500 text-sm mt-1">Fill in the details below to get started</p>
             </div>
 
             <FormProvider {...methods}>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <AnimatePresence mode="wait">
-                  {/* Step 0: Business Info */}
-                  {currentStep === 0 && (
-                    <motion.div
-                      key="step0"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                      className="space-y-4"
-                    >
-                      <FormInput label="Shop/Business Name" name="companyName" placeholder="Your Garage Name" required icon={Store} />
-                      <FormInput label="Company Website" name="companyWebsite" placeholder="https://example.com" icon={Globe} />
-                      
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Business Logo</label>
-                        <div className="flex items-center gap-4">
-                          <label className="cursor-pointer bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 px-5 py-2.5 rounded-lg flex items-center gap-2 transition-all shadow-sm hover:shadow-md">
-                            <Upload size={18} className="text-indigo-600" />
-                            <span className="text-sm font-medium">Upload Logo</span>
-                            <input type="file" className="hidden" onChange={handleLogoChange} accept="image/*" />
-                          </label>
-                          {logoPreview && (
-                            <div className="relative group">
-                              <Image src={logoPreview} alt="Logo preview" width={56} height={56} className="w-14 h-14 object-contain rounded-lg border shadow-sm" />
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setLogoPreview(null);
-                                  setValue('logo', null);
-                                }}
-                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                            </div>
-                          )}
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                {/* Business Information Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+                    <Briefcase className="w-5 h-5 text-blue-600" />
+                    <h3 className="font-semibold text-gray-800">Business Information</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormInput label="Business Name" name="companyName" placeholder="e.g., Acme Corp" required icon={Store} />
+                    <FormInput label="Website" name="companyWebsite" placeholder="https://yourcompany.com" icon={Link2} />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Business Logo</label>
+                    <div className="flex items-center gap-4">
+                      <label className="cursor-pointer bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 px-5 py-2.5 rounded-lg flex items-center gap-2 transition-all shadow-sm hover:shadow-md">
+                        <Upload size={18} className="text-blue-600" />
+                        <span className="text-sm font-medium">Upload Logo</span>
+                        <input type="file" className="hidden" onChange={handleLogoChange} accept="image/*" />
+                      </label>
+                      {logoPreview && (
+                        <div className="relative group">
+                          <Image src={logoPreview} alt="Logo preview" width={56} height={56} className="w-14 h-14 object-contain rounded-lg border shadow-sm bg-gray-50" />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setLogoPreview(null);
+                              setValue('logo', null);
+                            }}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity text-xs w-5 h-5 flex items-center justify-center"
+                          >
+                            ×
+                          </button>
                         </div>
-                        <p className="text-gray-400 text-xs mt-2">Recommended: Square image, max 2MB</p>
-                      </div>
-                    </motion.div>
-                  )}
+                      )}
+                    </div>
+                    <p className="text-gray-400 text-xs mt-2">Recommended: Square image, max 2MB (PNG, JPG, JPEG)</p>
+                  </div>
+                </div>
 
-                  {/* Step 1: Contact Details */}
-                  {currentStep === 1 && (
-                    <motion.div
-                      key="step1"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                      className="space-y-4"
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormInput label="First Name" name="firstName" placeholder="John" required icon={User} />
-                        <FormInput label="Middle Name" name="middleName" placeholder="Middle" icon={User} />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormInput label="Last Name" name="lastName" placeholder="Doe" icon={User} />
-                        <FormInput label="Email Address" name="emailId" type="email" placeholder="you@example.com" required icon={Mail} />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormInput label="Mobile Number" name="mobileNumber" placeholder="+1 234 567 8900" required icon={Phone} />
-                        <FormInput label="Phone Number (Optional)" name="phoneNumber" placeholder="+1 234 567 8900" icon={Phone} />
-                      </div>
-                    </motion.div>
-                  )}
+                {/* Contact Information Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+                    <User className="w-5 h-5 text-blue-600" />
+                    <h3 className="font-semibold text-gray-800">Contact Information</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormInput label="First Name" name="firstName" placeholder="John" required icon={User} />
+                    <FormInput label="Middle Name" name="middleName" placeholder="Middle" icon={User} />
+                    <FormInput label="Last Name" name="lastName" placeholder="Doe" icon={User} />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormInput label="Email Address" name="emailId" type="email" placeholder="you@company.com" required icon={Mail} />
+                    <FormInput label="Mobile Number" name="mobileNumber" placeholder="+1 234 567 8900" required icon={Smartphone} />
+                  </div>
+                  
+                  <FormInput label="Phone Number (Optional)" name="phoneNumber" placeholder="+1 234 567 8900" icon={Phone} />
+                </div>
 
-                  {/* Step 2: Address */}
-                  {currentStep === 2 && (
-                    <motion.div
-                      key="step2"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <AddressSection isGoogleMapsLoaded={isGoogleMapsLoaded} />
-                    </motion.div>
-                  )}
+                {/* Address Section */}
+                <AddressSection isGoogleMapsLoaded={isGoogleMapsLoaded} />
 
-                  {/* Step 3: Security */}
-                  {currentStep === 3 && (
-                    <motion.div
-                      key="step3"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                      className="space-y-4"
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                            Password <span className="text-red-500">*</span>
-                          </label>
-                          <div className="relative">
-                            <div className="absolute left-3 inset-y-0 flex items-center pointer-events-none">
-                              <Lock className="w-5 h-5 text-gray-400" />
-                            </div>
-                            <input
-                              type={showPassword ? 'text' : 'password'}
-                              {...methods.register('password')}
-                              className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition shadow-sm"
-                              placeholder="Create a strong password"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 inset-y-0 flex items-center text-gray-400 hover:text-gray-600"
-                            >
-                              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
-                          </div>
-                          {methods.formState.errors.password && (
-                            <p className="text-red-500 text-xs mt-1">{methods.formState.errors.password.message}</p>
-                          )}
-                          <p className="text-gray-400 text-xs mt-1.5">Minimum 6 characters with letters and numbers</p>
+                {/* Security Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+                    <Lock className="w-5 h-5 text-blue-600" />
+                    <h3 className="font-semibold text-gray-800">Security</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                        Password <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-3 inset-y-0 flex items-center pointer-events-none">
+                          <Lock className="w-5 h-5 text-gray-400" />
                         </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                            Confirm Password <span className="text-red-500">*</span>
-                          </label>
-                          <div className="relative">
-                            <div className="absolute left-3 inset-y-0 flex items-center pointer-events-none">
-                              <Lock className="w-5 h-5 text-gray-400" />
-                            </div>
-                            <input
-                              type={showConfirmPassword ? 'text' : 'password'}
-                              {...methods.register('confirmPassword')}
-                              className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition shadow-sm"
-                              placeholder="Confirm your password"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                              className="absolute right-3 inset-y-0 flex items-center text-gray-400 hover:text-gray-600"
-                            >
-                              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
-                          </div>
-                          {methods.formState.errors.confirmPassword && (
-                            <p className="text-red-500 text-xs mt-1">{methods.formState.errors.confirmPassword.message}</p>
-                          )}
-                        </div>
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          {...methods.register('password')}
+                          className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-sm placeholder-gray-400"
+                          placeholder="Create a strong password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 inset-y-0 flex items-center text-gray-400 hover:text-gray-600"
+                        >
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
                       </div>
+                      {errors.password && (
+                        <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+                      )}
+                      <p className="text-gray-400 text-xs mt-1.5">Minimum 6 characters with letters and numbers</p>
+                    </div>
 
-                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl">
-                        <div className="flex items-start gap-2">
-                          <input
-                            type="checkbox"
-                            {...methods.register('termsSelected')}
-                            className="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                          />
-                          <label className="text-sm text-gray-700 leading-relaxed">
-                            By proceeding, you agree to our <span className="text-indigo-600 font-medium hover:underline cursor-pointer">Terms and Conditions</span> and <span className="text-indigo-600 font-medium hover:underline cursor-pointer">Privacy Policy</span>
-                            <span className="text-red-500 ml-1">*</span>
-                          </label>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                        Confirm Password <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-3 inset-y-0 flex items-center pointer-events-none">
+                          <Lock className="w-5 h-5 text-gray-400" />
                         </div>
-                        {methods.formState.errors.termsSelected && (
-                          <p className="text-red-500 text-xs mt-2">{methods.formState.errors.termsSelected.message}</p>
-                        )}
+                        <input
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          {...methods.register('confirmPassword')}
+                          className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-sm placeholder-gray-400"
+                          placeholder="Confirm your password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 inset-y-0 flex items-center text-gray-400 hover:text-gray-600"
+                        >
+                          {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
                       </div>
-                    </motion.div>
+                      {errors.confirmPassword && (
+                        <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Terms and Conditions */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl">
+                  <div className="flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      {...methods.register('termsSelected')}
+                      className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <label className="text-sm text-gray-700 leading-relaxed">
+                      By proceeding, you agree to our <span className="text-blue-600 font-medium hover:underline cursor-pointer">Terms of Service</span> and <span className="text-blue-600 font-medium hover:underline cursor-pointer">Privacy Policy</span>
+                      <span className="text-red-500 ml-1">*</span>
+                    </label>
+                  </div>
+                  {errors.termsSelected && (
+                    <p className="text-red-500 text-xs mt-2">{errors.termsSelected.message}</p>
                   )}
-                </AnimatePresence>
+                </div>
 
-                {/* Navigation Buttons */}
+                {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">
-                  {currentStep > 0 && (
-                    <button
-                      type="button"
-                      onClick={prevStep}
-                      className="flex-1 bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-lg hover:bg-gray-300 transition-all"
-                    >
-                      Previous
-                    </button>
-                  )}
-                  {currentStep < steps.length - 1 ? (
-                    <button
-                      type="button"
-                      onClick={nextStep}
-                      className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-2.5 rounded-lg hover:shadow-lg transition-all"
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold py-2.5 rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
-                    >
-                      {isSubmitting ? 'Creating Account...' : 'Complete Registration'}
-                    </button>
-                  )}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all disabled:opacity-50 hover:scale-[1.02] transform duration-200"
+                  >
+                    {isSubmitting ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Creating Account...
+                      </span>
+                    ) : (
+                      'Create Account'
+                    )}
+                  </button>
                   <button
                     type="button"
                     onClick={() => redirect('/auth/signIn')}
-                    className="px-6 bg-red-500 text-white font-semibold py-2.5 rounded-lg hover:bg-red-600 transition-all"
+                    className="px-6 bg-gray-100 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-200 transition-all hover:scale-[1.02] transform duration-200"
                   >
                     Cancel
                   </button>
                 </div>
+
+                {/* Login Link */}
+                <p className="text-center text-sm text-gray-600 pt-2">
+                  Already have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => redirect('/auth/signIn')}
+                    className="text-blue-600 font-semibold hover:underline hover:text-blue-700 transition"
+                  >
+                    Sign in
+                  </button>
+                </p>
               </form>
             </FormProvider>
           </div>
