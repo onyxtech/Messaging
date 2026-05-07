@@ -5,11 +5,11 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Lock, Eye, EyeOff, ShieldCheck, Key, CheckCircle2, ArrowRight } from "lucide-react";
-import { useModal } from "@/hooks/useModal";
+import { useModal } from "@/contexts/ModalContext";
 import MessageCard from "@/components/ui/MessageCard";
 import { FormInput } from "../components/FormInput";
 import { Button } from "../components/Button";
-import group from '../../../assets/group.png';
+// import group from '../../../assets/group.png';
 import { redirect } from "next/navigation";
 import toast from "react-hot-toast";
 import { changePasswordSchema, ChangePasswordFormValues} from "../schema/changePasswordSchema"
@@ -51,7 +51,7 @@ export default function ChangePassword() {
       
       openModal(
         <MessageCard
-          image={group}
+        //   image={group}
           subject={"Password Updated"}
           message={"We have updated your password. Please click on login to access your account."}
           onClickBtn={onClickBtn}
