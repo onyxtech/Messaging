@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useForm, FormProvider, useFormContext } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -15,13 +15,14 @@ import {
   MessageCircle,
   TrendingUp,
   Award,
-  AlertCircle,
   ArrowRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { FormInput } from '../components/FormInput';
+import { Button } from '../components/Button';
 
 // ---------- Login Schema ----------
 const loginSchema = z.object({
@@ -31,127 +32,6 @@ const loginSchema = z.object({
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
-
-// ---------- Reusable Input Component ----------
-function FormInput({
-  label,
-  name,
-  type = 'text',
-  placeholder,
-  required = false,
-  icon: Icon,
-  rightIcon: RightIcon,
-  onRightIconClick,
-}: {
-  label?: string;
-  name: keyof LoginFormValues;
-  type?: string;
-  placeholder?: string;
-  required?: boolean;
-  icon?: React.ElementType | null;
-  rightIcon?: React.ElementType | null;
-  onRightIconClick?: () => void;
-}) {
-  const { register, formState: { errors } } = useFormContext<LoginFormValues>();
-  const error = errors[name];
-
-  return (
-    <motion.div 
-      className="space-y-1.5"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      {label && (
-        <label className="block text-sm font-semibold text-gray-700">
-          {label} {required && <span className="text-red-500">*</span>}
-        </label>
-      )}
-      <div className="relative group">
-        {Icon && (
-          <div className="absolute left-3 inset-y-0 flex items-center pointer-events-none z-10">
-            <Icon className={`w-5 h-5 transition-colors ${error ? 'text-red-400' : 'text-gray-400 group-focus-within:text-blue-500'}`} />
-          </div>
-        )}
-        <input
-          type={type}
-          {...register(name)}
-          placeholder={placeholder}
-          className={`w-full ${Icon ? 'pl-10' : 'pl-4'} ${RightIcon ? 'pr-10' : 'pr-4'} py-2.5 rounded-lg border transition-all duration-200
-            bg-white hover:border-gray-300
-            ${error 
-              ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-              : 'border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-            } focus:outline-none shadow-sm hover:shadow-md transition-shadow placeholder-gray-400`}
-        />
-        {RightIcon && (
-          <button
-            type="button"
-            onClick={onRightIconClick}
-            className="absolute right-3 inset-y-0 flex items-center text-gray-400 hover:text-gray-600"
-          >
-            <RightIcon className="w-5 h-5" />
-          </button>
-        )}
-      </div>
-      {error && (
-        <motion.p 
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-red-500 text-xs flex items-center gap-1"
-        >
-          <AlertCircle className="w-3 h-3" />
-          {error.message as string}
-        </motion.p>
-      )}
-    </motion.div>
-  );
-}
-
-// ---------- Reusable Button Component ----------
-function Button({
-  type = 'button',
-  onClick,
-  disabled,
-  isLoading,
-  children,
-  variant = 'primary',
-  fullWidth = true,
-}: {
-  type?: 'button' | 'submit' | 'reset';
-  onClick?: () => void;
-  disabled?: boolean;
-  isLoading?: boolean;
-  children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'danger';
-  fullWidth?: boolean;
-}) {
-  const variants = {
-    primary: 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg',
-    secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-    danger: 'bg-red-500 text-white hover:bg-red-600',
-  };
-
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled || isLoading}
-      className={`${fullWidth ? 'w-full' : ''} ${variants[variant]} font-semibold py-3 rounded-lg transition-all disabled:opacity-50 hover:scale-[1.02] transform duration-200`}
-    >
-      {isLoading ? (
-        <span className="flex items-center justify-center gap-2">
-          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          {children}
-        </span>
-      ) : (
-        <span className="flex items-center justify-center gap-2">
-          {children}
-        </span>
-      )}
-    </button>
-  );
-}
 
 // ---------- Main Component ----------
 export default function LoginPage() {
@@ -168,7 +48,7 @@ export default function LoginPage() {
     },
   });
 
-  const { handleSubmit, formState: { errors } } = methods;
+  const { handleSubmit } = methods;
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:4000/api';
 
@@ -356,9 +236,9 @@ export default function LoginPage() {
                   type="submit"
                   isLoading={isLoading}
                   variant="primary"
+                  icon={ArrowRight}
                 >
                   Sign In
-                  <ArrowRight className="w-4 h-4" />
                 </Button>
               </form>
             </FormProvider>
