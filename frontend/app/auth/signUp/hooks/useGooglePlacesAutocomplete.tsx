@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { UseFormSetValue } from 'react-hook-form';
-import { RegisterFormValues } from '../schema/registerSchema';
+import { RegisterFormValues } from '../../schema/registerSchema';
 
 export function useGooglePlacesAutocomplete(
   setValue: UseFormSetValue<RegisterFormValues>,

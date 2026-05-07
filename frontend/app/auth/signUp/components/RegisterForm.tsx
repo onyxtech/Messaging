@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { registerSchema, RegisterFormValues } from '../schema/registerSchema';
+import { registerSchema, RegisterFormValues } from '../../schema/registerSchema';
 import { useGooglePlacesAutocomplete } from '../hooks/useGooglePlacesAutocomplete';
 import useGoogleMapLoad from '@/hooks/useGoogleMapLoad';
 
