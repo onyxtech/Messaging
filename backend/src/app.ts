@@ -3,6 +3,8 @@ import cors from "cors"
 import path from "path";
 import "dotenv/config"; 
 
+import compnayRoutes from "./routes/auth/auth.routes"
+
 
 
 // Create express app
@@ -18,6 +20,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use(express.static(path.join(__dirname, "../public")));
 // Routes
 
+app.use(`${process.env.API_PREFIX}/register`, compnayRoutes);
 
 // Health check route
 app.get("/health", (_req, res) => {
@@ -25,9 +28,7 @@ app.get("/health", (_req, res) => {
 });
 
 
-app.get("/api/ai-test", (req, res) => {
-  res.json({ message: "AI test working" });
-});
+
 
 
 
