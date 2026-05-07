@@ -41,13 +41,10 @@ export const registerShopDetails = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Email already registered" });
     }
 
-    // Start a session for transaction
-    const session = await mongoose.startSession();
-    session.startTransaction();
 
     try {
       // 3. Create User (without shopId initially)
-      const [newUser] = await User.create([{
+      const newUser = await User.create({
         email: emailId,
         password: password,
         role: "Admin",
@@ -57,7 +54,7 @@ export const registerShopDetails = async (req: Request, res: Response) => {
         middleName: middleName || "",
         lastName: lastName || "",
         mobileNumber: mobileNumber || "",
-      }], { session });
+      });
 
       if (!newUser) {
         throw new Error("User creation failed");
@@ -67,7 +64,7 @@ export const registerShopDetails = async (req: Request, res: Response) => {
       console.log("NEW USER ID:", userId);
 
       // 4. Create Shop/Company with userId reference
-      const [newShop] = await Shop.create([{
+      const newShop = await Shop.create({
         shopName: companyName || "",
         userId: userId, // Shop has userId
         email: emailId,
@@ -81,7 +78,7 @@ export const registerShopDetails = async (req: Request, res: Response) => {
         logo: logoPath,
         isActive: true,
         isDeleted: false,
-      }], { session });
+      });
 
       if (!newShop) {
         throw new Error("Shop creation failed");
@@ -89,10 +86,7 @@ export const registerShopDetails = async (req: Request, res: Response) => {
 
       // 5. Update User with shopId
       newUser.shopId = newShop._id;
-      await newUser.save({ session });
-
-      // Commit transaction
-      await session.commitTransaction();
+      
       
       // Success
       return res.status(201).json({
@@ -103,12 +97,9 @@ export const registerShopDetails = async (req: Request, res: Response) => {
       });
 
     } catch (error: any) {
-      // Rollback transaction on error
-      await session.abortTransaction();
+          
       throw error;
-    } finally {
-      session.endSession();
-    }
+    } 
 
   } catch (error: any) {
     console.error("Registration error:", JSON.stringify(error, null, 2));
