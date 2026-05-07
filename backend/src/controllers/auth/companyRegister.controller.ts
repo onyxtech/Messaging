@@ -38,6 +38,11 @@ export const registerShopDetails = async (req: Request, res: Response) => {
       console.log("No logo file uploaded");
     }
 
+    console.log("password", password);
+    console.log("confirmPassword", confirmPassword);
+    if (password === confirmPassword) {
+     console.log("match")
+    }
     // 1. Validate password match
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Passwords do not match" });
