@@ -10,83 +10,15 @@ import {
   MapPin, Building2, Globe, Phone, Mail, User, Store, 
   CreditCard, AlertCircle, CheckCircle2, Home, 
   Briefcase, Link2, Smartphone, UserCheck, MessageCircle, 
-  Zap, TrendingUp, Award
+  Zap, TrendingUp, Award, ArrowRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { registerSchema, RegisterFormValues } from '../schema/registerSchema';
+import { registerSchema, RegisterFormValues } from '../../schema/registerSchema';
 import { useGooglePlacesAutocomplete } from '../hooks/useGooglePlacesAutocomplete';
 import useGoogleMapLoad from '@/hooks/useGoogleMapLoad';
-
-// ---------- Reusable Input Component ----------
-function FormInput({
-  label,
-  name,
-  type = 'text',
-  placeholder,
-  required = false,
-  readOnly = false,
-  icon: Icon,
-  helperText,
-}: {
-  label?: string;
-  name: keyof RegisterFormValues;
-  type?: string;
-  placeholder?: string;
-  required?: boolean;
-  readOnly?: boolean;
-  icon?: React.ElementType | null;
-  helperText?: string;
-}) {
-  const { register, formState: { errors } } = useFormContext<RegisterFormValues>();
-  const error = errors[name];
-
-  return (
-    <motion.div 
-      className="space-y-1.5"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      {label && (
-        <label className="block text-sm font-semibold text-gray-700">
-          {label} {required && <span className="text-red-500">*</span>}
-        </label>
-      )}
-      <div className="relative group">
-        {Icon && (
-          <div className="absolute left-3 inset-y-0 flex items-center pointer-events-none z-10">
-            <Icon className={`w-5 h-5 transition-colors ${error ? 'text-red-400' : 'text-gray-400 group-focus-within:text-blue-500'}`} />
-          </div>
-        )}
-        <input
-          type={type}
-          {...register(name)}
-          placeholder={placeholder}
-          readOnly={readOnly}
-          className={`w-full ${Icon ? 'pl-10' : 'pl-4'} pr-4 py-2.5 rounded-lg border transition-all duration-200
-            ${readOnly ? 'bg-gray-100 cursor-not-allowed text-gray-600' : 'bg-white hover:border-gray-300'}
-            ${error 
-              ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-              : 'border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-            } focus:outline-none shadow-sm hover:shadow-md transition-shadow`}
-          style={{ color: readOnly ? '#4B5563' : '#111827' }}
-        />
-      </div>
-      {helperText && !error && <p className="text-gray-400 text-xs">{helperText}</p>}
-      {error && (
-        <motion.p 
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-red-500 text-xs flex items-center gap-1"
-        >
-          <AlertCircle className="w-3 h-3" />
-          {error.message as string}
-        </motion.p>
-      )}
-    </motion.div>
-  );
-}
+import { FormInput } from '../../components/FormInput';
+import { Button } from '../../components/Button';
 
 // ---------- Address Section Component ----------
 function AddressSection({ isGoogleMapsLoaded }: { isGoogleMapsLoaded: boolean }) {
@@ -365,10 +297,10 @@ export default function RegisterForm() {
             
             <div className="space-y-3">
               {[
-                { icon: ShieldCheck, text: 'Enterprise-grade security', color: 'from-blue-500/20 to-indigo-500/20' },
-                { icon: Zap, text: 'Lightning-fast delivery', color: 'from-blue-500/20 to-indigo-500/20' },
-                { icon: TrendingUp, text: 'Advanced analytics', color: 'from-blue-500/20 to-indigo-500/20' },
-                { icon: Award, text: '99.9% uptime guarantee', color: 'from-blue-500/20 to-indigo-500/20' },
+                { icon: ShieldCheck, text: 'Enterprise-grade security' },
+                { icon: Zap, text: 'Lightning-fast delivery' },
+                { icon: TrendingUp, text: 'Advanced analytics' },
+                { icon: Award, text: '99.9% uptime guarantee' },
               ].map((item, idx) => (
                 <motion.div 
                   key={idx}
@@ -479,60 +411,28 @@ export default function RegisterForm() {
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Password <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <div className="absolute left-3 inset-y-0 flex items-center pointer-events-none">
-                          <Lock className="w-5 h-5 text-gray-400" />
-                        </div>
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          {...methods.register('password')}
-                          className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-sm placeholder-gray-400"
-                          placeholder="Create a strong password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 inset-y-0 flex items-center text-gray-400 hover:text-gray-600"
-                        >
-                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                      </div>
-                      {errors.password && (
-                        <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
-                      )}
-                      <p className="text-gray-400 text-xs mt-1.5">Minimum 6 characters with letters and numbers</p>
-                    </div>
+                    <FormInput
+                      label="Password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Create a strong password"
+                      required
+                      icon={Lock}
+                      rightIcon={showPassword ? EyeOff : Eye}
+                      onRightIconClick={() => setShowPassword(!showPassword)}
+                      helperText="Minimum 6 characters with letters and numbers"
+                    />
 
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Confirm Password <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <div className="absolute left-3 inset-y-0 flex items-center pointer-events-none">
-                          <Lock className="w-5 h-5 text-gray-400" />
-                        </div>
-                        <input
-                          type={showConfirmPassword ? 'text' : 'password'}
-                          {...methods.register('confirmPassword')}
-                          className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition shadow-sm placeholder-gray-400"
-                          placeholder="Confirm your password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 inset-y-0 flex items-center text-gray-400 hover:text-gray-600"
-                        >
-                          {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                      </div>
-                      {errors.confirmPassword && (
-                        <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>
-                      )}
-                    </div>
+                    <FormInput
+                      label="Confirm Password"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Confirm your password"
+                      required
+                      icon={Lock}
+                      rightIcon={showConfirmPassword ? EyeOff : Eye}
+                      onRightIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    />
                   </div>
                 </div>
 
@@ -556,27 +456,21 @@ export default function RegisterForm() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">
-                  <button
+                  <Button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all disabled:opacity-50 hover:scale-[1.02] transform duration-200"
+                    isLoading={isSubmitting}
+                    variant="primary"
+                    icon={ArrowRight}
                   >
-                    {isSubmitting ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Creating Account...
-                      </span>
-                    ) : (
-                      'Create Account'
-                    )}
-                  </button>
-                  <button
+                    Create Account
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => redirect('/auth/signIn')}
-                    className="px-6 bg-gray-100 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-200 transition-all hover:scale-[1.02] transform duration-200"
+                    variant="secondary"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Login Link */}
