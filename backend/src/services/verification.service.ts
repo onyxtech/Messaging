@@ -31,7 +31,7 @@ export class VerificationService {
             await user.save();
 
             const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-            const verificationLink = `${baseUrl}/verify-email?token=${token}&email=${user.email}`;
+            const verificationLink = `${baseUrl}/auth/verify-email?token=${token}&email=${user.email}`;
 
             // Get full logo URL
             const companyLogoUrl = shop.logo 
@@ -91,7 +91,7 @@ export class VerificationService {
                 verificationToken: token,
                 verificationTokenExpiry: { $gt: new Date() }
             });
-
+console.log("user", user)
             if (!user) {
                 throw new Error('Invalid or expired verification token');
             }

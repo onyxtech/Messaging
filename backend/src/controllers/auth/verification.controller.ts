@@ -12,14 +12,20 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
         const result = await VerificationService.verifyEmail(token as string, email as string);
 
-        // Redirect to frontend success page
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-        return res.redirect(`${frontendUrl}/auth/signin?verified=true&company=${encodeURIComponent(result.companyName)}`);
+        // Redirect ki bajaye JSON bhejain
+        return res.status(200).json({
+            success: true,
+            message: "Email verified successfully",
+            companyName: result.companyName
+        });
 
     } catch (error: any) {
         console.error("Verification error:", error);
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-        return res.redirect(`${frontendUrl}/auth/signin?error=${encodeURIComponent(error.message)}`);
+        // Catch block mein bhi JSON response bhejain
+        return res.status(400).json({
+            success: false,
+            message: error.message || "Verification failed"
+        });
     }
 };
 
