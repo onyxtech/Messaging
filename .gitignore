@@ -1,124 +1,59 @@
-# =========================
 # Node
-# =========================
 node_modules/
 npm-debug.log*
 yarn-error.log*
-pnpm-debug.log*
+.history/
 
-# =========================
-# TypeScript
-# =========================
-dist/
-build/
-*.tsbuildinfo
-
-# =========================
-# Environment variables
-# =========================
+# Env files
 .env
 .env.*
 !.env.example
 
-# =========================
-# Logs
-# =========================
-logs/
-*.log
-
-# =========================
-# Coverage / Tests
-# =========================
-coverage/
-
-# =========================
-# OS / Editor
-# =========================
-.DS_Store
-Thumbs.db
-
-# VS Code
-.vscode/
-!.vscode/extensions.json
-
-# IntelliJ / WebStorm
-.idea/
-
-# =========================
-# Temporary files
-# =========================
-tmp/
-temp/
-
-# =========================
-# Uploads / Generated files
-# =========================
-uploads/
-public/uploads/
-
-# =========================
-# Docker (optional)
-# =========================
-docker-data/
-# =========================
-# Node
-# =========================
-node_modules/
-npm-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# =========================
-# TypeScript
-# =========================
+# Build outputs
 dist/
 build/
-*.tsbuildinfo
+.next/
+out/
 
-# =========================
-# Environment variables
-# =========================
-.env
-.env.*
-!.env.example
-
-# =========================
-# Logs
-# =========================
-logs/
+# Docker
 *.log
 
-# =========================
-# Coverage / Tests
-# =========================
-coverage/
-
-# =========================
-# OS / Editor
-# =========================
+# OS
 .DS_Store
 Thumbs.db
 
-# VS Code
+# Editor
 .vscode/
-!.vscode/extensions.json
-
-# IntelliJ / WebStorm
 .idea/
 
-# =========================
-# Temporary files
-# =========================
-tmp/
-temp/
 
-# =========================
-# Uploads / Generated files
-# =========================
-uploads/
-public/uploads/
+# Node modules
+frontend/node_modules/
+backend/node_modules/
+common/node_modules/
 
-# =========================
-# Docker (optional)
-# =========================
-docker-data/
+# Env files
+frontend/.env
+backend/.env
+common/.env
+
+# Build outputs
+frontend/.next/
+frontend/dist/
+frontend/build/
+backend/dist/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# uploads (DO NOT push user data)
+backend/uploads/
+
+.history/
