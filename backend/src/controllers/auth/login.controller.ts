@@ -2,7 +2,7 @@
 import { Request, Response } from "express";
 import { User } from "../../models/auth/user.models";
 import { Shop } from "../../models/auth/companyRegister.models";
-import { comparePassword, generateToken } from "../../services/auth.service";
+import { comparePassword, generateToken, hashPassword } from "../../services/auth.service";
 
 export const login = async (req: Request, res: Response) => {
     try {
@@ -67,5 +67,30 @@ export const login = async (req: Request, res: Response) => {
     } catch (error: any) {
         console.error("Login error:", error);
         return res.status(500).json({ message: "Login failed" });
+    }
+};
+
+
+export const setupPassword = async (req: Request, res: Response) => {
+    try {
+        const { token, password } = req.body;
+console.log("token", token, "password", password)
+        const user = await User.findOne({ emailToken: token, emailTokenExpires: { $gt: new Date() } }) as any;
+        console.log("user", user)
+        if (!user) return res.status(400).json({ message: "Invalid or expired token" });
+
+        // Hash password
+        const hashedPassword = await hashPassword(password);
+
+        user.password = hashedPassword;
+        user.isActive = true;
+        user.emailToken = undefined;
+        user.emailTokenExpires = undefined;
+
+        await user.save();
+
+        res.status(200).json({ message: "Account activated successfully" });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
     }
 };

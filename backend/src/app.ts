@@ -3,7 +3,8 @@ import cors from "cors"
 import path from "path";
 import "dotenv/config"; 
 
-import compnayRoutes from "./routes/auth/auth.routes"
+import compnayRoutes from "./routes/auth/auth.routes";
+import otpRouter from "./routes/otp-routes/mobile.otp.routes"
 
 
 
@@ -21,6 +22,12 @@ app.use(express.static(path.join(__dirname, "../public")));
 // Routes
 
 app.use(`${process.env.API_PREFIX}/`, compnayRoutes);
+app.use(
+  `${process.env.API_PREFIX}/forget-password`,
+  //adminProtecter,
+  otpRouter,
+);
+
 
 // Health check route
 app.get("/health", (_req, res) => {
