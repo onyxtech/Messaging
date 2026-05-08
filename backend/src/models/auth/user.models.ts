@@ -1,3 +1,4 @@
+// models/auth/user.models.ts
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IUser extends Document {
@@ -5,6 +6,9 @@ export interface IUser extends Document {
   password: string;
   role: string;
   isActive: boolean;
+  isVerified: boolean;
+  verificationToken?: string | null;
+  verificationTokenExpiry?: Date | null;
   isDeleted: boolean;
   firstName: string;
   middleName: string;
@@ -36,6 +40,18 @@ const UserSchema = new Schema<IUser>(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    verificationTokenExpiry: {
+      type: Date,
     },
     isDeleted: {
       type: Boolean,
@@ -71,9 +87,5 @@ const UserSchema = new Schema<IUser>(
     timestamps: true,
   }
 );
-
-// Compound index for soft delete queries
-UserSchema.index({ email: 1, isDeleted: 1 });
-UserSchema.index({ shopId: 1 });
 
 export const User = mongoose.model<IUser>("User", UserSchema);
