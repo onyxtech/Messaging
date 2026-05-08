@@ -23,21 +23,27 @@ export interface EmailOptions {
     }>;
 }
 
+// NEW: Interface for company branding
+export interface CompanyBranding {
+    companyName: string;
+    companyLogo?: string;
+    companyAddress?: string;
+    primaryColor?: string;
+    accentColor?: string;
+}
+
 export class EmailService {
     private static instance: EmailService;
     private baseTemplate: BaseEmailTemplate;
-   
-
 
     private constructor() {
         this.baseTemplate = new BaseEmailTemplate({
             appName: process.env.APP_NAME || 'Inventory Pro',
             appColor: process.env.BRAND_COLOR || '#0f172a',
             accentColor: process.env.ACCENT_COLOR || '#6366f1',
-            companyLogo: process.env.COMPANY_LOGO,
+            companyLogo: process.env.COMPANY_LOGO, // Default system logo
             companyAddress: process.env.COMPANY_ADDRESS
         });
-
     }
 
     public static getInstance(): EmailService {
@@ -79,7 +85,6 @@ export class EmailService {
             const info = await transporator.sendMail(mailOptions);
             console.log(`Email sent successfully: ${info.messageId}`);
 
-            // Log for audit
             await this.logEmailDelivery({
                 messageId: info.messageId,
                 to: mailOptions.to,
@@ -92,13 +97,30 @@ export class EmailService {
             throw new Error(`Email delivery failed: ${error.message}`);
         }
     }
-private async logEmailDelivery(log: any): Promise<void> {
+
+    // NEW: Send email with company branding
+    public async sendCompanyEmail(
+        to: string, 
+        subject: string, 
+        htmlContent: string, 
+        branding: CompanyBranding
+    ): Promise<void> {
+        const fullHtml = this.baseTemplate.wrapContent(htmlContent, {
+            preheader: subject,
+            title: subject,
+            branding: branding // Pass branding to template
+        });
+
+        await this.sendMail({
+            to: to,
+            subject: subject,
+            html: fullHtml
+        });
+    }
+
+    private async logEmailDelivery(log: any): Promise<void> {
         // TODO: Implement email logging to database
     }
-    
-
-
 }
 
-// Export singleton instance
 export const emailService = EmailService.getInstance();
