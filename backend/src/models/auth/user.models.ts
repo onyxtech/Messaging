@@ -6,9 +6,9 @@ export interface IUser extends Document {
   password: string;
   role: string;
   isActive: boolean;
-  isVerified: boolean;  // New field
-  verificationToken: string;  // New field
-  verificationTokenExpiry: Date;  // New field
+  isVerified: boolean;
+  verificationToken?: string | null;
+  verificationTokenExpiry?: Date | null;
   isDeleted: boolean;
   firstName: string;
   middleName: string;
@@ -41,16 +41,16 @@ const UserSchema = new Schema<IUser>(
       type: Boolean,
       default: true,
     },
-    isVerified: {  // New field
+    isVerified: {
       type: Boolean,
       default: false,
     },
-    verificationToken: {  // New field
+    verificationToken: {
       type: String,
       unique: true,
       sparse: true,
     },
-    verificationTokenExpiry: {  // New field
+    verificationTokenExpiry: {
       type: Date,
     },
     isDeleted: {

@@ -1,121 +1,116 @@
+// controllers/auth/companyRegister.controller.ts
 import { Request, Response } from "express";
 import { User } from "../../models/auth/user.models";
 import { Shop } from "../../models/auth/companyRegister.models";
-import mongoose from "mongoose";
+import { hashPassword } from "../../services/auth.service";
+import { VerificationService } from "../../services/verification.service";
 
 export const registerShopDetails = async (req: Request, res: Response) => {
-  console.log("Content-Type:", req.headers['content-type']);
-  console.log("req.body:", req.body);
-  console.log("req.file:", req.file);
+    try {
+        const {
+            firstName,
+            middleName,
+            lastName,
+            emailId,
+            companyName,
+            mobileNumber,
+            phoneNumber,
+            companyWebsite,
+            companyAddress,
+            country,
+            zipCode,
+            latitude,
+            longitude,
+            password,
+            confirmPassword,
+            // Color scheme fields
+            primaryColor = "#1e293b",
+            secondaryColor = "#3b82f6",
+            accentColor = "#8b5cf6",
+            companyEmail,
+            supportEmail
+        } = req.body;
 
-  try {
-    const {
-      firstName,
-      middleName,
-      lastName,
-      emailId,
-      companyName,
-      mobileNumber,
-      phoneNumber,
-      companyWebsite,
-      companyAddress,
-      country,
-      zipCode,
-      latitude,
-      longitude,
-      password,
-      confirmPassword,
-    } = req.body;
+        // Logo handling
+        let logoPath = "";
+        if (req.file) {
+            logoPath = `/uploads/${req.file.filename}`;
+            console.log("Logo uploaded:", logoPath);
+        }
 
-    console.log("API HIT");
-    
-    // Better logo path handling
-    let logoPath = "";
-    if (req.file) {
-      logoPath = (req.file as Express.Multer.File).filename;
-      console.log("Logo uploaded:", logoPath);
-    } else {
-      console.log("No logo file uploaded");
+        // Validate password
+        if (password !== confirmPassword) {
+            return res.status(400).json({ message: "Passwords do not match" });
+        }
+
+        // Check existing user
+        const existingUser = await User.findOne({ email: emailId });
+        if (existingUser) {
+            return res.status(400).json({ message: "Email already registered" });
+        }
+
+        // Hash password
+        const hashedPassword = await hashPassword(password);
+
+        // Create User
+        const newUser = await User.create({
+            email: emailId,
+            password: hashedPassword,
+            role: "Admin",
+            isActive: true,
+            isVerified: false,
+            isDeleted: false,
+            firstName: firstName || "",
+            middleName: middleName || "",
+            lastName: lastName || "",
+            mobileNumber: mobileNumber || "",
+        });
+
+        // Create Shop with color scheme
+        const newShop = await Shop.create({
+            shopName: companyName || "",
+            userId: newUser._id,
+            email: emailId,
+            phoneNumber: phoneNumber || "",
+            companyWebsite: companyWebsite || "",
+            companyAddress: companyAddress || "",
+            country: country || "",
+            zipCode: zipCode || "",
+            latitude: latitude || "",
+            longitude: longitude || "",
+            logo: logoPath,
+            primaryColor: primaryColor,
+            secondaryColor: secondaryColor,
+            accentColor: accentColor,
+            companyEmail: companyEmail || emailId,
+            supportEmail: supportEmail || process.env.SUPPORT_EMAIL || "support@example.com",
+            isActive: true,
+            isDeleted: false,
+        });
+
+        // Update User with shopId
+        newUser.shopId = newShop._id;
+        await newUser.save();
+
+        // Send verification email
+        await VerificationService.sendVerificationEmail(newUser._id.toString(), newShop._id.toString());
+
+        return res.status(201).json({
+            success: true,
+            message: "Registration successful! Please check your email to verify your account.",
+            userId: newUser._id,
+            shopId: newShop._id,
+            shopLogo: logoPath,
+            email: newUser.email,
+            requiresVerification: true
+        });
+
+    } catch (error: any) {
+        console.error("Registration error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Registration failed",
+            error: process.env.NODE_ENV === "development" ? error.message : undefined
+        });
     }
-
-    // 1. Validate password match
-    if (password !== confirmPassword) {
-      return res.status(400).json({ message: "Passwords do not match" });
-    }
-
-    // 2. Check if user already exists
-    const existingUser = await User.findOne({ email: emailId });
-    if (existingUser) {
-      return res.status(400).json({ message: "Email already registered" });
-    }
-
-    // 3. Create User (without shopId initially)
-    const newUser = await User.create({
-      email: emailId,
-      password: password,
-      role: "Admin",
-      isActive: true,
-      isDeleted: false,
-      firstName: firstName || "",
-      middleName: middleName || "",
-      lastName: lastName || "",
-      mobileNumber: mobileNumber || "",
-    });
-
-    if (!newUser) {
-      throw new Error("User creation failed");
-    }
-
-    const userId = newUser._id;
-    console.log("NEW USER ID:", userId);
-
-    // 4. Create Shop/Company with userId reference
-    const newShop = await Shop.create({
-      shopName: companyName || "",
-      userId: userId,
-      email: emailId,
-      phoneNumber: phoneNumber || "",
-      companyWebsite: companyWebsite || "",
-      companyAddress: companyAddress || "",
-      country: country || "",
-      zipCode: zipCode || "",
-      latitude: latitude || "",
-      longitude: longitude || "",
-      logo: logoPath,
-      isActive: true,
-      isDeleted: false,
-    });
-
-    if (!newShop) {
-      throw new Error("Shop creation failed");
-    }
-
-    console.log("SHOP CREATED WITH ID:", newShop._id);
-    console.log("SHOP LOGO PATH:", newShop.logo);
-
-    // 5. Update User with shopId
-    newUser.shopId = newShop._id;
-    await newUser.save();
-    
-    console.log("USER UPDATED WITH SHOP ID:", newUser.shopId);
-
-    // Success
-    return res.status(201).json({
-      message: "Shop registered successfully",
-      userId: userId,
-      shopId: newShop._id,
-      shopLogo: logoPath,
-      email: newUser.email,
-    });
-
-  } catch (error: any) {
-    console.error("Registration error:", JSON.stringify(error, null, 2));
-
-    return res.status(500).json({
-      message: "Registration failed",
-      error: process.env.NODE_ENV === "development"
-        ? { message: error.message, errors: error.errors }
-        : undefined,
-    });
-  }
 };

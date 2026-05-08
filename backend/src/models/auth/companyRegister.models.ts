@@ -13,11 +13,12 @@ export interface IShop extends Document {
     latitude: string;
     longitude: string;
     logo: string;
-    // New branding fields
-    primaryColor?: string;
-    accentColor?: string;
-    companyEmail?: string;
-    supportEmail?: string;
+    // Company branding colors
+    primaryColor: string;
+    secondaryColor: string;
+    accentColor: string;
+    companyEmail: string;
+    supportEmail: string;
     isActive: boolean;
     isDeleted: boolean;
     createdAt: Date;
@@ -82,14 +83,18 @@ const ShopSchema = new Schema<IShop>(
             type: String,
             default: "",
         },
-        // New branding fields
+        // Three color scheme for company branding
         primaryColor: {
             type: String,
-            default: "#0f172a",
+            default: "#1e293b", // Slate 800
+        },
+        secondaryColor: {
+            type: String,
+            default: "#3b82f6", // Blue 500
         },
         accentColor: {
             type: String,
-            default: "#6366f1",
+            default: "#8b5cf6", // Violet 500
         },
         companyEmail: {
             type: String,
@@ -100,6 +105,7 @@ const ShopSchema = new Schema<IShop>(
             type: String,
             trim: true,
             lowercase: true,
+            default: "support@example.com",
         },
         isActive: {
             type: Boolean,

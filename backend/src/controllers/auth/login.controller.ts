@@ -8,16 +8,12 @@ export const login = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
 
-        // Find user
         const user = await User.findOne({ email: email, isDeleted: false });
         
         if (!user) {
-            return res.status(401).json({ 
-                message: "Invalid credentials" 
-            });
+            return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        // CHECK IF EMAIL IS VERIFIED
         if (!user.isVerified) {
             return res.status(403).json({ 
                 message: "Please verify your email address before logging in",
@@ -26,33 +22,29 @@ export const login = async (req: Request, res: Response) => {
             });
         }
 
-        // Check if user is active
         if (!user.isActive) {
-            return res.status(403).json({ 
-                message: "Your account has been deactivated" 
-            });
+            return res.status(403).json({ message: "Your account has been deactivated" });
         }
 
-        // Verify password using your service
         const isValidPassword = await comparePassword(password, user.password);
         
         if (!isValidPassword) {
-            return res.status(401).json({ 
-                message: "Invalid credentials" 
-            });
+            return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        // Get shop details for additional context
         const shop = await Shop.findById(user.shopId);
 
-        // Generate JWT token using your service
         const token = generateToken({
             userId: user._id.toString(),
             email: user.email,
             role: user.role
         });
 
+        // Get full logo URL
+        const logoUrl = shop?.logo ? `${process.env.BACKEND_URL || 'http://localhost:5000'}${shop.logo}` : null;
+
         return res.status(200).json({
+            success: true,
             message: "Login successful",
             token,
             user: {
@@ -63,15 +55,17 @@ export const login = async (req: Request, res: Response) => {
                 role: user.role,
                 shopId: user.shopId,
                 shopName: shop?.shopName,
-                companyLogo: shop?.logo,
-                isVerified: user.isVerified
+                companyLogo: logoUrl,
+                isVerified: user.isVerified,
+                // Company branding
+                primaryColor: shop?.primaryColor,
+                secondaryColor: shop?.secondaryColor,
+                accentColor: shop?.accentColor
             }
         });
 
     } catch (error: any) {
         console.error("Login error:", error);
-        return res.status(500).json({ 
-            message: "Login failed" 
-        });
+        return res.status(500).json({ message: "Login failed" });
     }
 };
