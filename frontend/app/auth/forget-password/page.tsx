@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Mail, ShieldCheck, ArrowLeft, KeyRound, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { createItem } from '@/helper/apiHelper';
 import toast from "react-hot-toast";
 import { FormInput } from "../components/FormInput";
 import { Button } from "@/components/ui/Button";
@@ -40,9 +40,22 @@ export default function ForgetPasswordPage() {
 //     },
 //   });
 
-  const onSubmit = async (data: ForgetPasswordFormValues) => {
-    // sendOTPMutation.mutate(data.email);
-  };
+ const onSubmit = async (data: ForgetPasswordFormValues) => {
+  try {
+    const response = await createItem('/forget-password/send-otp', { emailId: data.email });
+
+    
+    if (response && response.success) { 
+      localStorage.setItem('resetEmail', data.email);
+      router.push('/auth/forget-password/verify-otp');
+    } else {
+      
+      alert(response.message || "Failed to send OTP");
+    }
+  } catch (error: any) {
+    alert(error.message);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-slate-100 to-gray-100">
