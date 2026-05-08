@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -39,7 +39,7 @@ export default function RegisterForm() {
   } | null>(null);
 
   const methods = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(registerSchema) as Resolver<RegisterFormValues>,
     defaultValues: {
       firstName: '',
       middleName: '',
@@ -120,7 +120,7 @@ export default function RegisterForm() {
     }
 
     try {
-      const response = await createItem('/register/company', formData);
+      const response = await createItem<{ userId: string; shopId: string }>('/register/company', formData);
       
       reset();
       setLogoPreview(null);
@@ -129,8 +129,8 @@ export default function RegisterForm() {
       setRegistrationData({
         email: data.emailId,
         companyName: data.companyName,
-        userId: response.userId,
-        shopId: response.shopId
+        userId: response.data.userId,
+        shopId: response.data.shopId
       });
       
       setShowSuccessCard(true);

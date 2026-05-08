@@ -30,8 +30,8 @@ export function AddressSection({ isGoogleMapsLoaded }: AddressSectionProps) {
   const showDetailed = watch('showDetailedAddress') || false;
   const lat = watch('latitude');
   const lng = watch('longitude');
-  const locationVerified = (lat !== 0 && lat !== null && lat !== undefined && lat !== '0') || 
-                          (lng !== 0 && lng !== null && lng !== undefined && lng !== '0');
+  const locationVerified = (lat !== 0 && lat !== null && lat !== undefined) || 
+                          (lng !== 0 && lng !== null && lng !== undefined);
   
   const autocompleteRef = useRef<any>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
