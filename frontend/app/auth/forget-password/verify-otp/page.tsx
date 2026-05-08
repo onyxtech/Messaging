@@ -7,10 +7,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { ShieldCheck, ArrowLeft, KeyRound, AlertCircle, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { FormInput } from "../../components/FormInput";
 import { Button } from "@/components/ui/Button";
+import { createItem } from '@/helper/apiHelper';
 
 import { verifyOTPSchema, VerifyOTPFormValues } from "../../schema/verifyOTPSchema"
 
@@ -60,21 +60,21 @@ export default function VerifyOTPPage() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Verify OTP Mutation
-//   const verifyOTPMutation = useMutation({
-//     mutationFn: ({ email, otp }: { email: string; otp: string }) => 
-//       verifyOTP(email, otp),
-//     onSuccess: () => {
-//       toast.success('OTP verified successfully!');
-//       router.push('/auth/forget-password/update-password');
-//     },
-//     onError: (error: any) => {
-//       toast.error(error.message || 'Invalid OTP. Please try again.');
-//     },
-//   });
-
   const onSubmit = async (data: VerifyOTPFormValues) => {
-    // verifyOTPMutation.mutate({ email, otp: data.otp });
+        
+     try {
+    const response = await createItem('/forget-password/verify-otp', { emailId: email, otp: data.otp });
+    
+    if (response && response.success) { 
+     
+      router.push('/auth/forget-password/update-password');
+    } else {
+      
+      alert(response.message || "Failed to send OTP");
+    }
+  } catch (error: any) {
+    alert(error.message);
+  }
   };
 
   return (

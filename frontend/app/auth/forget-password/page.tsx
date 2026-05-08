@@ -27,19 +27,7 @@ export default function ForgetPasswordPage() {
 
   const { handleSubmit } = methods;
 
-  // Send OTP Mutation
-//   const sendOTPMutation = useMutation({
-//     mutationFn: (email: string) => sendOTP(email),
-//     onSuccess: (data) => {
-//       localStorage.setItem('resetEmail', data.email);
-//       toast.success('OTP sent to your email!');
-//       router.push('/auth/forget-password/verify-otp');
-//     },
-//     onError: (error: any) => {
-//       toast.error(error.message || 'Failed to send OTP. Please try again.');
-//     },
-//   });
-
+ 
  const onSubmit = async (data: ForgetPasswordFormValues) => {
   try {
     const response = await createItem('/forget-password/send-otp', { emailId: data.email });

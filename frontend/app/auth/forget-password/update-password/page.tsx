@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Lock, Eye, EyeOff, ShieldCheck, ArrowLeft, KeyRound, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { createItem } from '@/helper/apiHelper';
 import { useModal } from "@/contexts/ModalContext";
 import MessageCard from "@/components/ui/MessageCard";
 import toast from "react-hot-toast";
@@ -72,6 +72,21 @@ export default function UpdatePasswordPage() {
 
   const onSubmit = async (data: UpdatePasswordFormValues) => {
     // updatePasswordMutation.mutate({ email, password: data.password });
+console.log("data", data)
+       try {
+    const response = await createItem('/forget-password/update-passoword', { emailId: email, password: data.password, confirmPassword: data
+      .confirmPassword });
+    console.log("response", response)
+    if (response && response.success) { 
+     
+      router.push('/auth/signIn');
+    } else {
+      
+      alert(response.message || "Failed to send OTP");
+    }
+  } catch (error: any) {
+    alert(error.message);
+  }
   };
 
   return (
