@@ -20,7 +20,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use(express.static(path.join(__dirname, "../public")));
 // Routes
 
-app.use(`${process.env.API_PREFIX}/register`, compnayRoutes);
+app.use(`${process.env.API_PREFIX}/`, compnayRoutes);
 
 // Health check route
 app.get("/health", (_req, res) => {

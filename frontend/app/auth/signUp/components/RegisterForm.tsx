@@ -89,7 +89,7 @@ export default function RegisterForm() {
     if (!registrationData) return;
     
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/resend-verification`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/register/resend-verification`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: registrationData.email }),
@@ -104,9 +104,28 @@ export default function RegisterForm() {
   };
 
   const onSubmit = async (data: RegisterFormValues) => {
+      console.log("data", data);
+
+       const hexRegex = /^#[0-9A-Fa-f]{6}$/;
+  if (!hexRegex.test(data.primaryColor)) {
+    console.error('Invalid primary color:', data.primaryColor);
+    toast.error('Invalid primary color format');
+    return;
+  }
+  if (!hexRegex.test(data.secondaryColor)) {
+    console.error('Invalid secondary color:', data.secondaryColor);
+    toast.error('Invalid secondary color format');
+    return;
+  }
+  if (!hexRegex.test(data.accentColor)) {
+    console.error('Invalid accent color:', data.accentColor);
+    toast.error('Invalid accent color format');
+    return;
+  }
+
     const formData = new FormData();
     
-    const skipKeys = new Set(['showDetailedAddress', 'termsSelected']);
+    const skipKeys = new Set(['showDetailedAddress']);
     
     for (const [key, value] of Object.entries(data)) {
       if (skipKeys.has(key)) continue;
@@ -118,6 +137,11 @@ export default function RegisterForm() {
         formData.append(key, String(value));
       }
     }
+     // Log all form data entries
+  console.log('FormData entries:');
+  for (const pair of formData.entries()) {
+    console.log(pair[0], pair[1]);
+  }
 
     try {
       const response = await createItem<{ userId: string; shopId: string }>('/register/company', formData);

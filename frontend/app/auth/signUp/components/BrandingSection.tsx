@@ -2,7 +2,7 @@
 'use client';
 
 import { useFormContext } from 'react-hook-form';
-import { Palette, TrendingUp, Zap, Shield } from 'lucide-react';
+import { Palette, TrendingUp, Sparkles } from 'lucide-react';
 import { RegisterFormValues } from '../../schema/registerSchema';
 
 const presetColors = [
@@ -17,16 +17,25 @@ const presetColors = [
 ];
 
 export function BrandingSection() {
-  const { setValue, watch } = useFormContext<RegisterFormValues>();
+  const { setValue, watch, formState: { errors } } = useFormContext<RegisterFormValues>();
   
-  const primaryColor = watch('primaryColor');
-  const secondaryColor = watch('secondaryColor');
-  const accentColor = watch('accentColor');
+  // Watch colors with safe defaults
+  const primaryColor = watch('primaryColor') || '#1e293b';
+  const secondaryColor = watch('secondaryColor') || '#3b82f6';
+  const accentColor = watch('accentColor') || '#8b5cf6';
 
   const handlePresetSelect = (preset: typeof presetColors[0]) => {
-    setValue('primaryColor', preset.primary);
-    setValue('secondaryColor', preset.secondary);
-    setValue('accentColor', preset.accent);
+    setValue('primaryColor', preset.primary, { shouldValidate: true });
+    setValue('secondaryColor', preset.secondary, { shouldValidate: true });
+    setValue('accentColor', preset.accent, { shouldValidate: true });
+  };
+
+  const handleColorChange = (field: 'primaryColor' | 'secondaryColor' | 'accentColor', value: string) => {
+    // Validate hex color format
+    const hexRegex = /^#[0-9A-Fa-f]{6}$/;
+    if (hexRegex.test(value) || value === '') {
+      setValue(field, value, { shouldValidate: true });
+    }
   };
 
   return (
@@ -48,10 +57,10 @@ export function BrandingSection() {
         border: `1px solid ${primaryColor}30`
       }}>
         <div className="text-center space-y-3">
-          <div className="flex justify-center gap-2">
-            <div className="w-12 h-12 rounded-lg shadow-md" style={{ backgroundColor: primaryColor }} />
-            <div className="w-12 h-12 rounded-lg shadow-md" style={{ backgroundColor: secondaryColor }} />
-            <div className="w-12 h-12 rounded-lg shadow-md" style={{ backgroundColor: accentColor }} />
+          <div className="flex justify-center gap-3">
+            <div className="w-12 h-12 rounded-lg shadow-md transition-all hover:scale-105" style={{ backgroundColor: primaryColor }} />
+            <div className="w-12 h-12 rounded-lg shadow-md transition-all hover:scale-105" style={{ backgroundColor: secondaryColor }} />
+            <div className="w-12 h-12 rounded-lg shadow-md transition-all hover:scale-105" style={{ backgroundColor: accentColor }} />
           </div>
           <p className="text-sm font-medium text-gray-700">Your Brand Colors Preview</p>
           <div className="flex justify-center gap-4 text-xs">
@@ -92,6 +101,7 @@ export function BrandingSection() {
           Custom Colors
         </label>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Primary Color */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: primaryColor }} />
@@ -101,19 +111,23 @@ export function BrandingSection() {
               <input
                 type="color"
                 value={primaryColor}
-                onChange={(e) => setValue('primaryColor', e.target.value)}
+                onChange={(e) => handleColorChange('primaryColor', e.target.value)}
                 className="w-12 h-10 rounded border border-gray-200 cursor-pointer"
               />
               <input
                 type="text"
                 value={primaryColor}
-                onChange={(e) => setValue('primaryColor', e.target.value)}
-                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                onChange={(e) => handleColorChange('primaryColor', e.target.value)}
+                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 font-mono"
                 placeholder="#1e293b"
               />
             </div>
+            {errors.primaryColor && (
+              <p className="text-red-500 text-xs">{errors.primaryColor.message}</p>
+            )}
           </div>
 
+          {/* Secondary Color */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: secondaryColor }} />
@@ -123,19 +137,23 @@ export function BrandingSection() {
               <input
                 type="color"
                 value={secondaryColor}
-                onChange={(e) => setValue('secondaryColor', e.target.value)}
+                onChange={(e) => handleColorChange('secondaryColor', e.target.value)}
                 className="w-12 h-10 rounded border border-gray-200 cursor-pointer"
               />
               <input
                 type="text"
                 value={secondaryColor}
-                onChange={(e) => setValue('secondaryColor', e.target.value)}
-                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                onChange={(e) => handleColorChange('secondaryColor', e.target.value)}
+                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 font-mono"
                 placeholder="#3b82f6"
               />
             </div>
+            {errors.secondaryColor && (
+              <p className="text-red-500 text-xs">{errors.secondaryColor.message}</p>
+            )}
           </div>
 
+          {/* Accent Color */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-gray-600 flex items-center gap-1">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: accentColor }} />
@@ -145,25 +163,28 @@ export function BrandingSection() {
               <input
                 type="color"
                 value={accentColor}
-                onChange={(e) => setValue('accentColor', e.target.value)}
+                onChange={(e) => handleColorChange('accentColor', e.target.value)}
                 className="w-12 h-10 rounded border border-gray-200 cursor-pointer"
               />
               <input
                 type="text"
                 value={accentColor}
-                onChange={(e) => setValue('accentColor', e.target.value)}
-                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                onChange={(e) => handleColorChange('accentColor', e.target.value)}
+                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 font-mono"
                 placeholder="#8b5cf6"
               />
             </div>
+            {errors.accentColor && (
+              <p className="text-red-500 text-xs">{errors.accentColor.message}</p>
+            )}
           </div>
         </div>
       </div>
 
       {/* Info Message */}
-      <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
+      <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
         <p className="text-xs text-blue-800 flex items-start gap-2">
-          <TrendingUp className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+          <Sparkles className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
           <span>These colors will be used in your email templates, dashboard, and brand communications.</span>
         </p>
       </div>
