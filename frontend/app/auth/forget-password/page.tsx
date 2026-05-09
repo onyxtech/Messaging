@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Mail, ShieldCheck, ArrowLeft, KeyRound, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { createItem } from '@/helper/apiHelper';
 import toast from "react-hot-toast";
 import { FormInput } from "../components/FormInput";
 import { Button } from "@/components/ui/Button";
@@ -27,22 +27,23 @@ export default function ForgetPasswordPage() {
 
   const { handleSubmit } = methods;
 
-  // Send OTP Mutation
-//   const sendOTPMutation = useMutation({
-//     mutationFn: (email: string) => sendOTP(email),
-//     onSuccess: (data) => {
-//       localStorage.setItem('resetEmail', data.email);
-//       toast.success('OTP sent to your email!');
-//       router.push('/auth/forget-password/verify-otp');
-//     },
-//     onError: (error: any) => {
-//       toast.error(error.message || 'Failed to send OTP. Please try again.');
-//     },
-//   });
+ 
+ const onSubmit = async (data: ForgetPasswordFormValues) => {
+  try {
+    const response = await createItem('/forget-password/send-otp', { emailId: data.email });
 
-  const onSubmit = async (data: ForgetPasswordFormValues) => {
-    // sendOTPMutation.mutate(data.email);
-  };
+    
+    if (response && response.success) { 
+      localStorage.setItem('resetEmail', data.email);
+      router.push('/auth/forget-password/verify-otp');
+    } else {
+      
+      alert(response.message || "Failed to send OTP");
+    }
+  } catch (error: any) {
+    alert(error.message);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-slate-100 to-gray-100">

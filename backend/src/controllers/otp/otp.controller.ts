@@ -12,7 +12,6 @@ import { OTPEmailService } from "../../services/otpEmail.service";
 export const GenerateOTP = async (req: Request, res: Response) => {
     try {
         const { emailId } = req.body;
-
         if (!emailId) {
             return res.status(400).json({ message: "Email is required" });
         }
