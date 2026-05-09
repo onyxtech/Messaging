@@ -1,4 +1,47 @@
+/* src/app/globals.css */
+/* Tailwind v4 — replaces @tailwind directives and tailwind.config.ts */
 @import "tailwindcss";
+
+/* ─── Brand token registration ─────────────────────────────────────────────
+   @theme registers CSS vars as Tailwind utility classes automatically.
+   Generated: bg-brand-primary, text-brand-accent, bg-brand-gradient-full etc.
+─────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-brand-primary:   var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-accent:    var(--brand-accent);
+
+  --background-image-brand-gradient-ps:      var(--brand-gradient-ps);
+  --background-image-brand-gradient-pa:      var(--brand-gradient-pa);
+  --background-image-brand-gradient-sa:      var(--brand-gradient-sa);
+  --background-image-brand-gradient-full:    var(--brand-gradient-full);
+  --background-image-brand-gradient-reverse: var(--brand-gradient-reverse);
+  --background-image-brand-gradient-soft:    var(--brand-gradient-soft);
+}
+
+/* ── Default brand CSS variables ─────────────────────────────────────────────
+   BrandProvider.tsx overwrites these at runtime with the logged-in
+   shop's actual colors. These are only the fallback values.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Solid colors */
+  --brand-primary:   #6366f1;
+  --brand-secondary: #8b5cf6;
+  --brand-accent:    #06b6d4;
+
+  /* Soft backgrounds */
+  --brand-primary-soft:   rgba(99, 102, 241, 0.08);
+  --brand-secondary-soft: rgba(139, 92, 246, 0.08);
+  --brand-accent-soft:    rgba(6, 182, 212, 0.08);
+
+  /* 6 gradients */
+  --brand-gradient-ps:      linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --brand-gradient-pa:      linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+  --brand-gradient-sa:      linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+  --brand-gradient-full:    linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+  --brand-gradient-reverse: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #6366f1 100%);
+  --brand-gradient-soft:    linear-gradient(135deg, rgba(99,102,241,0.10) 0%, rgba(139,92,246,0.06) 50%, rgba(6,182,212,0.10) 100%);
+}
 
 :root {
   --background: #ffffff;

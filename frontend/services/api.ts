@@ -1,8 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { BASE_URL } from "@/utils/baseUrl";
+import { API_BASE_URL } from "@/utils/baseUrl";
 
 export const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: API_BASE_URL,
   timeout: 15000, // 15s — prevents requests hanging forever
 });
 
